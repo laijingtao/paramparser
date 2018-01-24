@@ -11,6 +11,16 @@ _VALID_FALSE_VALUES = set(['false', '0', 0])
 _VALID_BOOLEAN_VALUES = _VALID_TRUE_VALUES | _VALID_FALSE_VALUES
 _VALID_TYPES = set(['int', 'float', 'bool', 'str'])
 
+class MissingKeyError(Exception):
+    """Raise MissingKeyError if the paramters file doesn't have the requested key
+    """
+    pass
+
+class ParameterValueError(Exception):
+    """Raise ParameterValueError if the value is not of the expected type.
+    """
+    pass
+
 def _is_int(string):
     """If string s is a int, return true, else return false
     """
@@ -46,6 +56,12 @@ def _is_list(string):
     else:
         return False
 
+_CHECK_TYPE_METHOD = {
+    'int': _is_int,
+    'float': _is_float,
+    'bool': _is_bool
+}
+
 def _str2bool(string):
     return string.lower() in _VALID_TRUE_VALUES
 
@@ -58,31 +74,39 @@ def _str2list(string):
         s_list.append(item)
     return s_list
 
-def _auto_convert(string):
-    print 'test'
-
-
-_CHECK_TYPE_METHOD = {
-    'int': _is_int,
-    'float': _is_float,
-    'bool': _is_bool
-}
 _CONVERT_METHOD = {
     'int': int,
     'float': float,
-    'bool': _str2bool,
-    'auto': _auto_convert
+    'bool': _str2bool
 }
 
-class MissingKeyError(Exception):
-    """Raise MissingKeyError if the paramters file doesn't have the requested key
-    """
-    pass
+def _check_type(value, param_type):
+    checker = _CHECK_TYPE_METHOD[param_type]
+    if not _is_list(value) and not checker(value):
+        return False
+    elif _is_list(value):
+        value_list = _str2list(value)
+        for item in value_list:
+            if not checker(item):
+                return False
+    return True
 
-class ParameterValueError(Exception):
-    """Raise ParameterValueError if the value is not of the expected type.
-    """
-    pass
+def _convert(value, param_type):
+    converter = _CONVERT_METHOD[param_type]
+    if _is_list(value):
+        results = []
+        value_list = _str2list(value)
+        for item in value_list:
+            results.append(converter(item))
+        return results
+    else:
+        return converter(value)
+
+def _auto_convert(value):
+    for param_type in ['int', 'float', 'bool']:
+        if _check_type(value, param_type):
+            return _convert(value, param_type)
+    return value
 
 class ParamParser(object):
     """Parameter Parser
@@ -112,31 +136,18 @@ class ParamParser(object):
         """
         if key not in self._params_values:
             raise MissingKeyError("{}".format(key))
-        if param_type not in _VALID_TYPES:
+        if param_type != 'auto' and param_type not in _VALID_TYPES:
             sys.exit("{} is not a valid type.".format(param_type))
         value = self._params_values[key]
 
         if param_type == 'str':
-            return self._params_values[key]
+            return value
 
         if param_type != 'auto':
-            checker = _CHECK_TYPE_METHOD[param_type]
-            if not _is_list(value) and not checker(value):
-                raise ParameterValueError("{}: {} is not of type {}".format(key, value, param_type))
-            elif _is_list(value):
-                value_list = _str2list(value)
-                for item in value_list:
-                    if not checker(item):
-                        raise ParameterValueError("{}: {} in {} is not of type {}".format(key, item, value, param_type))
+            if not _check_type(value, param_type):
+                raise ParameterValueError(
+                    "{}: {} (or some item in it) is not of type {}".format(key, value, param_type))
+            return _convert(value, param_type)
 
-        converter = _CONVERT_METHOD[param_type]
-        if _is_list(value):
-            results = []
-            value_list = _str2list(value)
-            for item in value_list:
-                results.append(converter(item))
-            return results
-        else:
-            return converter(value)
-
-
+        if param_type == 'auto':
+            return _auto_convert(value)

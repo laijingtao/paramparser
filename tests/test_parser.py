@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+
 from paramparser import ParamParser
 
 parser = ParamParser('test.txt')
@@ -16,3 +20,9 @@ f = parser.read('f', 'int')
 print f
 g = parser.read('g', 'bool')
 print g
+h = parser.read('h')
+print h
+i = parser.read('i')
+print i
+j = parser.read('j')
+print j

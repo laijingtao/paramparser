@@ -12,3 +12,9 @@ f:
 [1, 2]
 g:
 [true, false]
+h:
+true
+i:
+5.7
+j:
+foo

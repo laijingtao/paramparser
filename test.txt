@@ -1,0 +1,14 @@
+a:
+a
+b:
+1
+c:
+1e5
+d:
+false
+e:
+true
+f:
+[1, 2]
+g:
+[true, false]

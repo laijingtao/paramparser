@@ -105,17 +105,6 @@ venv.bak/
 
 #############
 # Add by J. Lai
-# data
-*.jpg
-*.txt
-*.nc
-*.pdf
-*.ps
 
 # vscode
 .vscode
-
-# tmp file
-tmp*
-*.tmp
-*.swp

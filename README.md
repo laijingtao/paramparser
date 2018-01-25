@@ -31,7 +31,7 @@ Read from file:
 ```python
 from paramparser import ParamParser
 
-parser = ParamParser()
+parser = ParamParser('param_file.txt')
 height = parser.read(key='height', param_type='float')
 width = parser.read(key='width', param_type='int')
 switch = parser.read(key='switch', param_type='bool')

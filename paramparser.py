@@ -75,6 +75,7 @@ def _str2list(string):
     return s_list
 
 _CONVERT_METHOD = {
+    'str': str,
     'int': int,
     'float': float,
     'bool': _str2bool
@@ -106,7 +107,7 @@ def _auto_convert(value):
     for param_type in ['int', 'float', 'bool']:
         if _check_type(value, param_type):
             return _convert(value, param_type)
-    return value
+    return _convert(value, 'str')
 
 class ParamParser(object):
     """Parameter Parser
@@ -140,11 +141,8 @@ class ParamParser(object):
             sys.exit("{} is not a valid type.".format(param_type))
         value = self._params_values[key]
 
-        if param_type == 'str':
-            return value
-
         if param_type != 'auto':
-            if not _check_type(value, param_type):
+            if param_type != 'str' and not _check_type(value, param_type):
                 raise ParameterValueError(
                     "{}: {} (or some item in it) is not of type {}".format(key, value, param_type))
             return _convert(value, param_type)

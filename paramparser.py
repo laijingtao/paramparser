@@ -122,15 +122,15 @@ class ParamParser(object):
 
         i = 0
         self._params_values = {}
+        self._key_list = []
         while i < len(file_line_list):
             key = file_line_list[i].replace(':', '')
             value = file_line_list[i+1]
             if value[-1] == ':':
                 sys.exit("{} does not have a value.".format(key))
             self._params_values[key] = value
+            self._key_list.append(key)
             i += 2
-
-        self.avail_keys = self._params_values.keys()
 
     def read(self, key, param_type='auto'):
         """Read parameter value
@@ -149,3 +149,17 @@ class ParamParser(object):
 
         if param_type == 'auto':
             return _auto_convert(value)
+
+    def change_value(self, key, new_value, outfile=None):
+        """change the value of a key
+        """
+        if outfile is None:
+            sys.exit("outfile required")
+
+        with open(outfile, 'w') as f:
+            for item in self._key_list:
+                f.write(item+':\n')
+                if item == key:
+                    f.write(str(new_value)+'\n')
+                else:
+                    f.write(self._params_values[item]+'\n')

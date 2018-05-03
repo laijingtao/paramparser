@@ -26,3 +26,5 @@ i = parser.read('i')
 print i
 j = parser.read('j')
 print j
+
+parser.change_value('j', 'fxxk', 'test2.txt')

@@ -160,6 +160,7 @@ class ParamParser(object):
             for item in self._key_list:
                 f.write(item+':\n')
                 if item == key:
+                    self._params_values[item] = str(new_value)
                     f.write(str(new_value)+'\n')
                 else:
                     f.write(self._params_values[item]+'\n')
